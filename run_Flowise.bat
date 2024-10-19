@@ -57,6 +57,11 @@ if %option% == C goto End
 :: if %option% == U goto Updater
 
 :Install
+echo --------------------------------------------------------------
+echo DO NOT PROCEED UNLESS YOU HAVE: NodeJS 18.15.0 or later.
+echo Make sure Docker Desktop is up and running if you want to use it.
+echo --------------------------------------------------------------
+timeout /t -1
 echo ---------------------------------------------------------------
 echo Creating virtual environment
 echo ---------------------------------------------------------------
@@ -67,13 +72,14 @@ if not exist venv (
 )
 echo Activating virtual environment
 call .venv\Scripts\activate
-echo --------------------------------------------------------------
-echo DO NOT PROCEED UNLESS YOU HAVE: NodeJS >= 18.15.0
-echo --------------------------------------------------------------
-timeout /t -1
+echo ---------------------------------------------------------------
 python.exe -m pip install --upgrade pip
-npm install -g flowise
-docker build --no-cache -t flowise .
+call npm i -g pnpm
+call pnpm install
+call pnpm build
+call npm install -g flowise
+pip install docker
+call docker build --no-cache -t flowise .
 echo Installation Complete!
 echo --------------------------------------------------------------
 timeout /t -1
@@ -91,7 +97,9 @@ if not exist venv (
 echo Activating virtual environment
 call .venv\Scripts\activate
 echo ---------------------------------------------------------------
+:: start call pnpm start
 start call npx flowise start
+start start http://localhost:3000
 goto Menu1
 
 :RunDocker
